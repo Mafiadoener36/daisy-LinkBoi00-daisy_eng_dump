@@ -1,0 +1,77 @@
+#!/system/bin/sh
+Path="/sdcard/camera_test.jpg"
+removeInfo="Remove old picture successfully."
+if [ "$1" = "--help" ]; then
+   echo "ata usage: "$0" cameraid size isfocus"
+   echo "cameraid:  [front = 0]      [mainback = 1]      [subback = 2]"
+   echo "size :     [max = 0]        [middle = 1]        [min = 2]"
+   echo "isfocus:   [focus = 0]      [not focus = 1]"
+   exit 0
+fi
+
+if [ "$#" != "3" ]; then
+   echo "The number of input parameters is not correct."
+   exit 0
+fi
+
+if [[ "$1" != [0-2] ]]; then
+   echo "First Parameter is error. Please input correct First parameter[0-2]"
+   exit 0;
+fi
+
+if [[ "$2" != [0-2] ]]; then
+   echo "Second Parameter is error. Please input correct Second parameter[0-2]"
+   exit 0;
+fi
+
+if [[ "$3" != [0-1] ]]; then
+   echo "Thrid Parameter is error. Please input correct Second parameter[0-1]"
+   exit 0;
+fi
+
+if [ -a "$Path" ]; then
+   rm $Path
+   echo $removeInfo
+fi
+
+#convert $1 to cameraid
+if [ "$1" = "0" ]; then
+   #front camera
+   cameraid=1
+elif [ "$1" = "1" ]; then
+   #back camera
+   cameraid=0
+elif [ "$1" = "2" ]; then
+   #back_aux camera
+   cameraid=2
+fi
+#convert $3 to focus
+if [ "$3" = "0" ]; then
+   #focus
+   focus=1
+elif [ "$3" = "1" ]; then
+   #not focus
+   focus=0
+fi
+
+am start -n com.huaqin.cameraautotest\/.CameraAutoTest --ei "cameraid" $cameraid --ei "solution" $2 --ei "autofocus" $focus
+
+#exit script after generate picture
+num=0
+while [[ $num -lt 12 ]]
+do
+echo "num ="$num
+if [ -a "$Path" ]; then
+   echo "Take Picture successfully"
+   exit 0
+fi
+let "num++"
+sleep 1
+#echo $num
+done
+
+if [ ! -a "$Path" ]; then
+   echo "Take Picture fail"
+   exit 0
+fi
+exit 0

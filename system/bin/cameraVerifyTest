@@ -1,0 +1,55 @@
+#!/system/bin/sh
+removeInfo="Remove old picture successfully."
+if [ "$1" = "--help" ]; then
+   echo "verify usage: "$0" cameratype"
+   echo "cameratype: [mainBack = 0]   [subback = 1]"
+   exit 0
+fi
+
+if [ "$#" != "1" ]; then
+   echo "The number of input parameters is not correct."
+   exit 0
+fi
+
+if [[ "$1" != [0-1] ]]; then
+   echo "First Parameter is error. Please input correct First parameter[0-1]"
+   exit 0;
+fi
+
+if [ "$1" = "0" ]; then
+   cameraid=2
+   Path="/sdcard/master.jpg"
+   if [ -a "$Path" ]; then
+   rm $Path
+   echo $removeInfo
+   fi
+elif [ "$1" = "1" ]; then
+   cameraid=0
+   Path="/sdcard/slave.jpg"
+   if [ -a "$Path" ]; then
+   rm $Path
+   echo $removeInfo
+   fi
+fi
+
+am start -n com.huaqin.cameraautotest\/.CameraAutoTest --ei "cameraid" $cameraid --ei "solution" 0 --ei "autofocus" 1 --ez "verify" "true" 
+
+#exit script after generate picture
+num=0
+while [[ $num -lt 12 ]]
+do
+echo "num ="$num
+if [ -a "$Path" ]; then
+   echo "Take Picture successfully"
+   exit 0
+fi
+let "num++"
+sleep 1
+#echo $num
+done
+
+if [ ! -a "$Path" ]; then
+   echo "Take Picture fail"
+   exit 0
+fi
+exit 0
